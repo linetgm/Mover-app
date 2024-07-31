@@ -149,3 +149,21 @@ class Booking(db.Model, SerializerMixin):
         if not value:
             raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
         return value
+
+# Define the Notification model
+class Notification(db.Model, SerializerMixin):
+    __tablename__ = 'notifications'
+    id = db.Column(db.String, primary_key=True)
+    booking_id = db.Column(db.String, db.ForeignKey('bookings.id'), nullable=False)
+    message = db.Column(db.String, nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False)
+
+    booking = db.relationship('Booking', back_populates='notifications')
+
+    serialize_rules = ('-booking.notifications',)
+
+    @validates('message', 'timestamp')
+    def validate_notification(self, key, value):
+        if not value:
+            raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
+        return value
