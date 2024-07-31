@@ -4,7 +4,7 @@ from sqlalchemy.orm import validates
 from config import db
 import bcrypt
 
-# Define the User model
+# Created the User model
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
     id = db.Column(db.String, primary_key=True)
@@ -50,9 +50,8 @@ class User(db.Model, SerializerMixin):
             raise ValueError("Email must be unique.")
         
         return email
- 
- 
- # Define the Profile model
+
+# Created the Profile model
 class Profile(db.Model, SerializerMixin):
     __tablename__ = 'profiles'
     id = db.Column(db.String, primary_key=True)
@@ -72,7 +71,7 @@ class Profile(db.Model, SerializerMixin):
             raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
         return name
 
-# Define the Checklist model
+# Created the Checklist model
 class Checklist(db.Model, SerializerMixin):
     __tablename__ = 'checklists'
     id = db.Column(db.String, primary_key=True)
@@ -90,8 +89,7 @@ class Checklist(db.Model, SerializerMixin):
             raise ValueError("Home type must be provided.")
         return home_type
 
-
-# Define the Inventory model
+# Created the Inventory model
 class Inventory(db.Model, SerializerMixin):
     __tablename__ = 'inventory'
     id = db.Column(db.String, primary_key=True)
@@ -109,8 +107,31 @@ class Inventory(db.Model, SerializerMixin):
         if not value:
             raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
         return value
-    
-# Define the Quote model
+
+# Created the Move model
+class Move(db.Model, SerializerMixin):
+    __tablename__ = 'moves'
+    id = db.Column(db.String, primary_key=True)
+    user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=False)
+    company_id = db.Column(db.String, db.ForeignKey('moving_companies.id'), nullable=False)
+    current_address = db.Column(db.String, nullable=False)
+    new_address = db.Column(db.String, nullable=False)
+    moving_date = db.Column(db.Date, nullable=False)
+    special_requirements = db.Column(db.String, nullable=True)
+
+    user = db.relationship('User', back_populates='moves')
+    company = db.relationship('MovingCompany', back_populates='moves')
+    quotes = db.relationship('Quote', back_populates='move', cascade='all, delete-orphan')
+
+    serialize_rules = ('-user.moves', '-company.moves', '-quotes.move')
+
+    @validates('current_address', 'new_address', 'moving_date')
+    def validate_move(self, key, value):
+        if not value:
+            raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
+        return value
+
+# Created the Quote model
 class Quote(db.Model, SerializerMixin):
     __tablename__ = 'quotes'
     id = db.Column(db.String, primary_key=True)
@@ -128,8 +149,8 @@ class Quote(db.Model, SerializerMixin):
         if not value:
             raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
         return value
-    
-# Define the Booking model
+
+# Created the Booking model
 class Booking(db.Model, SerializerMixin):
     __tablename__ = 'bookings'
     id = db.Column(db.String, primary_key=True)
@@ -150,7 +171,7 @@ class Booking(db.Model, SerializerMixin):
             raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
         return value
 
-# Define the Notification model
+# Created the Notification model
 class Notification(db.Model, SerializerMixin):
     __tablename__ = 'notifications'
     id = db.Column(db.String, primary_key=True)
@@ -167,8 +188,8 @@ class Notification(db.Model, SerializerMixin):
         if not value:
             raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
         return value
-    
-# Define the Communication model
+
+# Created the Communication model
 class Communication(db.Model, SerializerMixin):
     __tablename__ = 'communications'
     id = db.Column(db.String, primary_key=True)
@@ -185,8 +206,8 @@ class Communication(db.Model, SerializerMixin):
         if not value:
             raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
         return value
-    
-# Define the MovingCompany model
+
+# Created the MovingCompany model
 class MovingCompany(db.Model, SerializerMixin):
     __tablename__ = 'moving_companies'
     id = db.Column(db.String, primary_key=True)
