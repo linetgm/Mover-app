@@ -72,4 +72,20 @@ class Profile(db.Model, SerializerMixin):
             raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
         return name
 
+# Define the Checklist model
+class Checklist(db.Model, SerializerMixin):
+    __tablename__ = 'checklists'
+    id = db.Column(db.String, primary_key=True)
+    user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=False)
+    home_type = db.Column(db.String, nullable=False)
 
+    user = db.relationship('User', back_populates='checklists')
+    inventory_items = db.relationship('Inventory', back_populates='checklist', cascade='all, delete-orphan')
+
+    serialize_rules = ('-user.checklists', '-inventory_items.checklist')
+
+    @validates('home_type')
+    def validate_home_type(self, key, home_type):
+        if not home_type:
+            raise ValueError("Home type must be provided.")
+        return home_type
