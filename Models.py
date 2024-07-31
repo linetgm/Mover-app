@@ -128,3 +128,24 @@ class Quote(db.Model, SerializerMixin):
         if not value:
             raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
         return value
+    
+# Define the Booking model
+class Booking(db.Model, SerializerMixin):
+    __tablename__ = 'bookings'
+    id = db.Column(db.String, primary_key=True)
+    quote_id = db.Column(db.String, db.ForeignKey('quotes.id'), nullable=False)
+    move_date = db.Column(db.Date, nullable=False)
+    move_time = db.Column(db.Time, nullable=False)
+    confirmation_status = db.Column(db.String, nullable=False)
+
+    quote = db.relationship('Quote', back_populates='bookings')
+    notifications = db.relationship('Notification', back_populates='booking', cascade='all, delete-orphan')
+    communications = db.relationship('Communication', back_populates='booking', cascade='all, delete-orphan')
+
+    serialize_rules = ('-quote.bookings', '-notifications.booking', '-communications.booking')
+
+    @validates('move_date', 'move_time', 'confirmation_status')
+    def validate_booking(self, key, value):
+        if not value:
+            raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
+        return value
