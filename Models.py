@@ -109,3 +109,22 @@ class Inventory(db.Model, SerializerMixin):
         if not value:
             raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
         return value
+    
+# Define the Quote model
+class Quote(db.Model, SerializerMixin):
+    __tablename__ = 'quotes'
+    id = db.Column(db.String, primary_key=True)
+    move_id = db.Column(db.String, db.ForeignKey('moves.id'), nullable=False)
+    price = db.Column(db.Numeric, nullable=False)
+    status = db.Column(db.String, nullable=False)
+
+    move = db.relationship('Move', back_populates='quotes')
+    bookings = db.relationship('Booking', back_populates='quote', cascade='all, delete-orphan')
+
+    serialize_rules = ('-move.quotes', '-bookings.quote')
+
+    @validates('price', 'status')
+    def validate_quote(self, key, value):
+        if not value:
+            raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
+        return value
