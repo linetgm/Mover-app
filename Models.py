@@ -89,3 +89,23 @@ class Checklist(db.Model, SerializerMixin):
         if not home_type:
             raise ValueError("Home type must be provided.")
         return home_type
+
+
+# Define the Inventory model
+class Inventory(db.Model, SerializerMixin):
+    __tablename__ = 'inventory'
+    id = db.Column(db.String, primary_key=True)
+    checklist_id = db.Column(db.String, db.ForeignKey('checklists.id'), nullable=False)
+    item_name = db.Column(db.String, nullable=False)
+    status = db.Column(db.String, nullable=False)
+    notes = db.Column(db.String, nullable=True)
+
+    checklist = db.relationship('Checklist', back_populates='inventory_items')
+
+    serialize_rules = ('-checklist.inventory_items',)
+
+    @validates('item_name', 'status')
+    def validate_item(self, key, value):
+        if not value:
+            raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
+        return value
