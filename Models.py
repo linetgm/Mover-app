@@ -185,3 +185,23 @@ class Communication(db.Model, SerializerMixin):
         if not value:
             raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
         return value
+    
+# Define the MovingCompany model
+class MovingCompany(db.Model, SerializerMixin):
+    __tablename__ = 'moving_companies'
+    id = db.Column(db.String, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    contact_email = db.Column(db.String, nullable=False)
+    contact_phone = db.Column(db.String, nullable=False)
+    rating = db.Column(db.Numeric, nullable=True)
+    address = db.Column(db.String, nullable=False)
+
+    moves = db.relationship('Move', back_populates='company')
+
+    serialize_rules = ('-moves.company',)
+
+    @validates('name', 'contact_email', 'contact_phone', 'address')
+    def validate_moving_company(self, key, value):
+        if not value:
+            raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
+        return value
