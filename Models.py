@@ -51,3 +51,25 @@ class User(db.Model, SerializerMixin):
         
         return email
  
+ 
+ # Define the Profile model
+class Profile(db.Model, SerializerMixin):
+    __tablename__ = 'profiles'
+    id = db.Column(db.String, primary_key=True)
+    user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=False)
+    first_name = db.Column(db.String, nullable=False)
+    last_name = db.Column(db.String, nullable=False)
+    phone_number = db.Column(db.String, nullable=False)
+    preferences = db.Column(db.String, nullable=True)
+
+    user = db.relationship('User', back_populates='profiles')
+
+    serialize_rules = ('-user.profiles',)
+
+    @validates('first_name', 'last_name')
+    def validate_name(self, key, name):
+        if not name:
+            raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
+        return name
+
+
