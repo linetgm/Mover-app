@@ -3,6 +3,7 @@
 from datetime import datetime
 from App import app, db
 from Models import User, Profile, Checklist, Inventory, Move, Quote, Booking, Notification, Communication, MovingCompany
+import random
 
 with app.app_context():
     # Drop existing tables
@@ -29,13 +30,23 @@ with app.app_context():
         Profile(id='4', user_id='4', first_name='Dave', last_name='Brown', phone_number='555-1122', preferences='None')
     ]
 
-    # Created some checklists to populate the table
-    checklists = [
-        Checklist(id='1', user_id='1', home_type='Apartment'),
-        Checklist(id='2', user_id='2', home_type='House'),
-        Checklist(id='3', user_id='3', home_type='Condo'),
-        Checklist(id='4', user_id='4', home_type='Studio')
+    # List of valid home types
+    home_types = [
+        'Bedsitter',
+        'One Bedroom',
+        'Studio',
+        'Two Bedroom'
     ]
+
+    # Create checklists with random home types from the list
+    checklists = []
+    for user in users:
+        checklist = Checklist(
+            id=user.id,  # Using user ID as checklist ID for simplicity
+            user_id=user.id,
+            home_type=random.choice(home_types)  # Randomly choose from home_types
+        )
+        checklists.append(checklist)
 
     # Created some inventory items to populate the table
     inventories = [
@@ -93,8 +104,10 @@ with app.app_context():
         Communication(id='4', booking_id='4', message='Do you need any assistance with packing?', timestamp=datetime.now())
     ]
 
-    # Added the records to the session and commit them to the database
+    # Add all records to the session
     db.session.add_all(users + profiles + checklists + inventories + moving_companies + moves + quotes + bookings + notifications + communications)
+    
+    # Commit the transaction
     db.session.commit()
 
     print("Database seeded!")
