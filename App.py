@@ -456,7 +456,7 @@ class MovingCompanyResource(Resource):
             return {}, 204
         return {'error': 'Company not found'}, 404
 
-# Register resources with the API
+#  API
 api.add_resource(Signup, '/signup')
 api.add_resource(Login, '/login')
 api.add_resource(Logout, '/logout')
