@@ -5,6 +5,7 @@ from flask_cors import CORS
 from config import db
 from Models import User, Profile, Checklist, Inventory, Move, Quote, Booking, Notification, Communication, MovingCompany
 from datetime import datetime
+import bcrypt
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -50,6 +51,44 @@ class CheckSession(Resource):
             user = User.query.get(user_id)
             if user:
                 return user.to_dict(), 200
+        return {}, 204
+
+# Moving Company Authentication and Management
+class MovingCompanySignup(Resource):
+    def post(self):
+        data = request.get_json()
+        new_company = MovingCompany(
+            name=data['name'],
+            contact_email=data['email'],
+            contact_phone=data['phone_number'],
+            address=data['address']
+        )
+        new_company.password = data['password']
+        db.session.add(new_company)
+        db.session.commit()
+        return new_company.to_dict(), 201
+
+class MovingCompanyLogin(Resource):
+    def post(self):
+        data = request.get_json()
+        company = MovingCompany.query.filter_by(contact_email=data['email']).first()
+        if company and company.verify_password(data['password']):
+            session['company_id'] = company.id
+            return company.to_dict(), 200
+        return {'error': 'Invalid credentials'}, 401
+
+class MovingCompanyLogout(Resource):
+    def delete(self):
+        session.pop('company_id', None)
+        return {}, 204
+
+class MovingCompanyCheckSession(Resource):
+    def get(self):
+        company_id = session.get('company_id')
+        if company_id:
+            company = MovingCompany.query.get(company_id)
+            if company:
+                return company.to_dict(), 200
         return {}, 204
 
 # User Resource
@@ -424,18 +463,6 @@ class MovingCompanyResource(Resource):
         companies = MovingCompany.query.all()
         return [company.to_dict() for company in companies], 200
 
-    def post(self):
-        data = request.get_json()
-        new_company = MovingCompany(
-            name=data['name'],
-            address=data['address'],
-            phone_number=data['phone_number'],
-            email=data['email']
-        )
-        db.session.add(new_company)
-        db.session.commit()
-        return new_company.to_dict(), 201
-
     def put(self, company_id):
         data = request.get_json()
         company = MovingCompany.query.get(company_id)
@@ -456,11 +483,17 @@ class MovingCompanyResource(Resource):
             return {}, 204
         return {'error': 'Company not found'}, 404
 
-#  API
+# API Routes
 api.add_resource(Signup, '/signup')
 api.add_resource(Login, '/login')
 api.add_resource(Logout, '/logout')
 api.add_resource(CheckSession, '/check_session')
+
+api.add_resource(MovingCompanySignup, '/company_signup')
+api.add_resource(MovingCompanyLogin, '/company_login')
+api.add_resource(MovingCompanyLogout, '/company_logout')
+api.add_resource(MovingCompanyCheckSession, '/company_check_session')
+
 api.add_resource(UserResource, '/users', '/users/<int:user_id>')
 api.add_resource(ProfileResource, '/profiles', '/profiles/<int:profile_id>')
 api.add_resource(ChecklistResource, '/checklists', '/checklists/<int:checklist_id>')

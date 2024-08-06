@@ -207,19 +207,32 @@ class Communication(db.Model, SerializerMixin):
             raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
         return value
 
-# Created the MovingCompany model
+# Created the Moving Company model with login functionality
 class MovingCompany(db.Model, SerializerMixin):
     __tablename__ = 'moving_companies'
     id = db.Column(db.String, primary_key=True)
     name = db.Column(db.String, nullable=False)
     contact_email = db.Column(db.String, nullable=False)
     contact_phone = db.Column(db.String, nullable=False)
-    rating = db.Column(db.Numeric, nullable=True)
     address = db.Column(db.String, nullable=False)
+    password_hash = db.Column(db.String, nullable=True)
 
     moves = db.relationship('Move', back_populates='company')
 
     serialize_rules = ('-moves.company',)
+
+    @property
+    def password(self):
+        raise AttributeError('password is not a readable attribute')
+
+    @password.setter
+    def password(self, password):
+        self.password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+    def verify_password(self, password):
+        if self.password_hash:
+            return bcrypt.checkpw(password.encode('utf-8'), self.password_hash.encode('utf-8'))
+        return False
 
     @validates('name', 'contact_email', 'contact_phone', 'address')
     def validate_moving_company(self, key, value):
