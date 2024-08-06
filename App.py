@@ -20,15 +20,34 @@ api = Api(app)
 # Authentication and User Management
 class Signup(Resource):
     def post(self):
-        data = request.get_json()
-        new_user = User(
-            username=data['username'],
-            email=data['email'],
-            password=data['password']
-        )
-        db.session.add(new_user)
-        db.session.commit()
-        return new_user.to_dict(), 201
+        try:
+            data = request.get_json()
+            username = data.get('username')
+            email = data.get('email')
+            password = data.get('password')
+
+            if not username or not email or not password:
+                return {'error': 'Missing required fields'}, 400
+
+            if User.query.filter_by(username=username).first():
+                return {'error': 'Username already exists'}, 400
+
+            if User.query.filter_by(email=email).first():
+                return {'error': 'Email already exists'}, 400
+
+            new_user = User(
+                username=username,
+                email=email
+            )
+            new_user.password = password  # This will hash the password
+
+            db.session.add(new_user)
+            db.session.commit()
+            return new_user.to_dict(), 201
+
+        except Exception as e:
+            db.session.rollback()
+            return {'error': str(e)}, 500
 
 class Login(Resource):
     def post(self):

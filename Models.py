@@ -4,10 +4,10 @@ from sqlalchemy.orm import validates
 from config import db
 import bcrypt
 
-# Created the User model
+
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
-    id = db.Column(db.String, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String, unique=True, nullable=False)
     password_hash = db.Column(db.String, nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
@@ -33,29 +33,23 @@ class User(db.Model, SerializerMixin):
     def validate_username(self, key, username):
         if not username:
             raise ValueError("Username must be provided.")
-        
-        existing_user = User.query.filter_by(username=username).first()
-        if existing_user:
-            raise ValueError("Username must be unique.")
-        
+        if User.query.filter_by(username=username).first():
+            raise ValueError ("Username must be unique.")
         return username
 
     @validates('email')
     def validate_email(self, key, email):
         if not email:
             raise ValueError("Email must be provided.")
-        
-        existing_user = User.query.filter_by(email=email).first()
-        if existing_user:
-            raise ValueError("Email must be unique.")
-        
+        if User.query.filter_by(email=email).first():
+            raise ValueError ("Email must be unique.")
         return email
 
-# Created the Profile model
+
 class Profile(db.Model, SerializerMixin):
     __tablename__ = 'profiles'
-    id = db.Column(db.String, primary_key=True)
-    user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     first_name = db.Column(db.String, nullable=False)
     last_name = db.Column(db.String, nullable=False)
     phone_number = db.Column(db.String, nullable=False)
@@ -70,12 +64,12 @@ class Profile(db.Model, SerializerMixin):
         if not name:
             raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
         return name
+    
 
-# Created the Checklist model
 class Checklist(db.Model, SerializerMixin):
     __tablename__ = 'checklists'
-    id = db.Column(db.String, primary_key=True)
-    user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     home_type = db.Column(db.String, nullable=False)
 
     user = db.relationship('User', back_populates='checklists')
@@ -89,11 +83,11 @@ class Checklist(db.Model, SerializerMixin):
             raise ValueError("Home type must be provided.")
         return home_type
 
-# Created the Inventory model
+
 class Inventory(db.Model, SerializerMixin):
     __tablename__ = 'inventory'
-    id = db.Column(db.String, primary_key=True)
-    checklist_id = db.Column(db.String, db.ForeignKey('checklists.id'), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    checklist_id = db.Column(db.Integer, db.ForeignKey('checklists.id'), nullable=False)
     item_name = db.Column(db.String, nullable=False)
     status = db.Column(db.String, nullable=False)
     notes = db.Column(db.String, nullable=True)
@@ -107,13 +101,13 @@ class Inventory(db.Model, SerializerMixin):
         if not value:
             raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
         return value
+    
 
-# Created the Move model
-class Move(db.Model, SerializerMixin):
+class Move (db.Model, SerializerMixin):
     __tablename__ = 'moves'
-    id = db.Column(db.String, primary_key=True)
-    user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=False)
-    company_id = db.Column(db.String, db.ForeignKey('moving_companies.id'), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    company_id = db.Column(db.Integer, db.ForeignKey('moving_companies.id'), nullable=False)
     current_address = db.Column(db.String, nullable=False)
     new_address = db.Column(db.String, nullable=False)
     moving_date = db.Column(db.Date, nullable=False)
@@ -131,11 +125,11 @@ class Move(db.Model, SerializerMixin):
             raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
         return value
 
-# Created the Quote model
+
 class Quote(db.Model, SerializerMixin):
     __tablename__ = 'quotes'
-    id = db.Column(db.String, primary_key=True)
-    move_id = db.Column(db.String, db.ForeignKey('moves.id'), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    move_id = db.Column(db.Integer, db.ForeignKey('moves.id'), nullable=False)
     price = db.Column(db.Numeric, nullable=False)
     status = db.Column(db.String, nullable=False)
 
@@ -150,11 +144,11 @@ class Quote(db.Model, SerializerMixin):
             raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
         return value
 
-# Created the Booking model
+
 class Booking(db.Model, SerializerMixin):
     __tablename__ = 'bookings'
-    id = db.Column(db.String, primary_key=True)
-    quote_id = db.Column(db.String, db.ForeignKey('quotes.id'), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    quote_id = db.Column(db.Integer, db.ForeignKey('quotes.id'), nullable=False)
     move_date = db.Column(db.Date, nullable=False)
     move_time = db.Column(db.Time, nullable=False)
     confirmation_status = db.Column(db.String, nullable=False)
@@ -171,11 +165,11 @@ class Booking(db.Model, SerializerMixin):
             raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
         return value
 
-# Created the Notification model
+
 class Notification(db.Model, SerializerMixin):
     __tablename__ = 'notifications'
-    id = db.Column(db.String, primary_key=True)
-    booking_id = db.Column(db.String, db.ForeignKey('bookings.id'), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    booking_id = db.Column(db.Integer, db.ForeignKey('bookings.id'), nullable=False)
     message = db.Column(db.String, nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
 
@@ -189,11 +183,11 @@ class Notification(db.Model, SerializerMixin):
             raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
         return value
 
-# Created the Communication model
+
 class Communication(db.Model, SerializerMixin):
     __tablename__ = 'communications'
-    id = db.Column(db.String, primary_key=True)
-    booking_id = db.Column(db.String, db.ForeignKey('bookings.id'), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    booking_id = db.Column(db.Integer, db.ForeignKey('bookings.id'), nullable=False)
     message = db.Column(db.String, nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
 
@@ -207,10 +201,10 @@ class Communication(db.Model, SerializerMixin):
             raise ValueError(f"{key.replace('_', ' ').capitalize()} must be provided.")
         return value
 
-# Created the Moving Company model with login functionality
+
 class MovingCompany(db.Model, SerializerMixin):
     __tablename__ = 'moving_companies'
-    id = db.Column(db.String, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     contact_email = db.Column(db.String, nullable=False)
     contact_phone = db.Column(db.String, nullable=False)
