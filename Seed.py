@@ -3,6 +3,7 @@
 from datetime import datetime
 from App import app, db
 from Models import User, Profile, Checklist, Inventory, Move, Quote, Booking, Notification, Communication, MovingCompany
+import bcrypt
 import random
 
 with app.app_context():
@@ -14,10 +15,11 @@ with app.app_context():
     # Clear session
     db.session.remove()
 
-    # Helper function to create a user
+    # Helper function to create a user with hashed password
     def create_user(id, username, email, password):
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         user = User(id=id, username=username, email=email)
-        user.password = password
+        user.password = hashed_password.decode('utf-8')
         return user
 
     # Create some users with hashed passwords
@@ -60,13 +62,21 @@ with app.app_context():
         Inventory(id='4', checklist_id='4', item_name='Bed Frame', status='Packed', notes='Mattress in separate box')
     ]
 
-    # Create some moving companies
+   # Correct function definition for create_moving_company
+    def create_moving_company(id, name, contact_email, contact_phone, address, password):
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        company = MovingCompany(id=id, name=name, contact_email=contact_email, contact_phone=contact_phone, address=address)
+        company.password = hashed_password.decode('utf-8')
+        return company
+
+
     moving_companies = [
-        MovingCompany(id='1', name='Fast Movers', contact_email='info@fastmovers.com', contact_phone='555-7890', address='123 Main St', password='company1password'),
-        MovingCompany(id='2', name='Quick Relocators', contact_email='info@quickrelocators.com', contact_phone='555-0123', address='456 Elm St', password='company2password'),
-        MovingCompany(id='3', name='Reliable Movers', contact_email='contact@reliablemovers.com', contact_phone='555-3456', address='789 Oak St', password='company3password'),
-        MovingCompany(id='4', name='Speedy Shifters', contact_email='info@speedyshifters.com', contact_phone='555-6543', address='101 Pine St', password='company4password')
-    ]
+    create_moving_company(id='1', name='Fast Movers', contact_email='info@fastmovers.com', contact_phone='555-7890', address='123 Main St', password='company1password'),
+    create_moving_company(id='2', name='Quick Relocators', contact_email='info@quickrelocators.com', contact_phone='555-0123', address='456 Elm St', password='company2password'),
+    create_moving_company(id='3', name='Reliable Movers', contact_email='contact@reliablemovers.com', contact_phone='555-3456', address='789 Oak St', password='company3password'),
+    create_moving_company(id='4', name='Speedy Shifters', contact_email='info@speedyshifters.com', contact_phone='555-6543', address='101 Pine St', password='company4password')
+]
+
 
     # Create some moves
     moves = [
