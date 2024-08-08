@@ -26,7 +26,7 @@ class Signup(Resource):
             username = data.get('username')
             email = data.get('email')
             password = data.get('password')
-            role = data.get('role')  # Include role in signup
+            role = data.get('role')  # added role attribute
 
             if not username or not email or not password or not role:
                 return {'error': 'Missing required fields'}, 400
@@ -55,14 +55,23 @@ class Signup(Resource):
 class Login(Resource):
     def post(self):
         data = request.get_json()
-        user = User.query.filter_by(email=data['email']).first()
-        if user and user.verify_password(data['password']):
+        if not data:
+            return {'error': 'No data provided'}, 400
+        
+        email = data.get('email')
+        password = data.get('password')
+        
+        if not email or not password:
+            return {'error': 'Email and password are required'}, 400
+        
+        user = User.query.filter_by(email=email).first()
+        if user and user.verify_password(password):
             session['user_id'] = user.id
             # Redirect based on user role
             if user.role == 'user':
-                return {'redirect': '/user_dashboard'}, 200
+                return {'message': 'Login successful', 'redirect': '/user_dashboard'}, 200
             elif user.role == 'company':
-                return {'redirect': '/company_dashboard'}, 200
+                return {'message': 'Login successful', 'redirect': '/company_dashboard'}, 200
         return {'error': 'Invalid credentials'}, 401
 
 class Logout(Resource):
@@ -82,7 +91,6 @@ class CheckSession(Resource):
 # Moving Company Authentication and Management
 class MovingCompanySignup(Resource):
     def post(self):
-        data = request.get_json()
         try:
             data = request.get_json()
             name = data.get('name')
@@ -134,25 +142,23 @@ class MovingCompanyCheckSession(Resource):
         return {}, 204
 
 # User Role-Based Dashboards
-@app.route('/user_dashboard')
-def user_dashboard():
-    user_id = session.get('user_id')
-    if user_id:
-        user = User.query.get(user_id)
-        if user and user.role == 'user':
-            # Render user dashboard view or return user data
-            return jsonify({'message': 'Welcome to User Dashboard', 'user': user.to_dict()})
-    return redirect('/login')
+class UserDashboardResource(Resource):
+    def get(self):
+        user_id = session.get('user_id')
+        if user_id:
+            user = User.query.get(user_id)
+            if user and user.role == 'user':
+                return jsonify({'message': 'Welcome to User Dashboard', 'user': user.to_dict()})
+        return redirect('/login')
 
-@app.route('/company_dashboard')
-def company_dashboard():
-    company_id = session.get('company_id')
-    if company_id:
-        company = MovingCompany.query.get(company_id)
-        if company:
-            # Render company dashboard view or return company data
-            return jsonify({'message': 'Welcome to Company Dashboard', 'company': company.to_dict()})
-    return redirect('/login')
+class CompanyDashboardResource(Resource):
+    def get(self):
+        company_id = session.get('company_id')
+        if company_id:
+            company = MovingCompany.query.get(company_id)
+            if company:
+                return jsonify({'message': 'Welcome to Company Dashboard', 'company': company.to_dict()})
+        return redirect('/login')
 
 # User Resource
 class UserResource(Resource):
@@ -277,8 +283,8 @@ class InventoryResource(Resource):
         new_inventory = Inventory(
             checklist_id=data['checklist_id'],
             item_name=data['item_name'],
-            quantity=data['quantity'],
-            value=data['value']
+            status=data['status'],
+            notes=data['notes']
         )
         db.session.add(new_inventory)
         db.session.commit()
@@ -290,8 +296,8 @@ class InventoryResource(Resource):
         if inventory:
             inventory.checklist_id = data['checklist_id']
             inventory.item_name = data['item_name']
-            inventory.quantity = data['quantity']
-            inventory.value = data['value']
+            inventory.status = data['status']
+            inventory.notes = data['notes']
             db.session.commit()
             return inventory.to_dict(), 200
         return {'error': 'Inventory not found'}, 404
@@ -314,16 +320,25 @@ class MoveResource(Resource):
             return {'error': 'Move not found'}, 404
         moves = Move.query.all()
         return [move.to_dict() for move in moves], 200
-
+    
     def post(self):
         data = request.get_json()
+        required_keys = ['user_id', 'company_id', 'current_address', 'new_address', 'moving_date']
+        if not all(key in data for key in required_keys):
+            return {'error': 'Missing required fields'}, 400
+        
+        try:
+            moving_date = datetime.strptime(data['moving_date'], '%Y-%m-%d')
+        except ValueError:
+            return {'error': 'Invalid date format'}, 400
+        
         new_move = Move(
             user_id=data['user_id'],
-            date=datetime.strptime(data['date'], '%Y-%m-%d'),
-            from_address=data['from_address'],
-            to_address=data['to_address'],
-            distance=data['distance'],
-            items=data['items']
+            company_id=data['company_id'],
+            moving_date=moving_date,
+            current_address=data['current_address'],
+            new_address=data['new_address'],
+            special_requirements=data.get('special_requirements')
         )
         db.session.add(new_move)
         db.session.commit()
@@ -334,11 +349,12 @@ class MoveResource(Resource):
         move = Move.query.get(move_id)
         if move:
             move.user_id = data['user_id']
-            move.date = datetime.strptime(data['date'], '%Y-%m-%d')
-            move.from_address = data['from_address']
-            move.to_address = data['to_address']
-            move.distance = data['distance']
-            move.items = data['items']
+            move.company_id = data['company_id']
+            move.moving_date = datetime.strptime(data['moving_date'], '%Y-%m-%d')
+            move.current_address = data['current_address']
+            move.new_address = data['new_address']
+            move.special_requirements = data.get('special_requirements')
+            
             db.session.commit()
             return move.to_dict(), 200
         return {'error': 'Move not found'}, 404
@@ -365,11 +381,10 @@ class QuoteResource(Resource):
     def post(self):
         data = request.get_json()
         new_quote = Quote(
-            move_id=data['move_id'],
-            company_id=data['company_id'],
-            price=data['price'],
-            details=data['details']
-        )
+        move_id=data['move_id'],
+        price=data['price'],
+        status='pending'  # You can set the default status here
+    )
         db.session.add(new_quote)
         db.session.commit()
         return new_quote.to_dict(), 201
@@ -378,10 +393,9 @@ class QuoteResource(Resource):
         data = request.get_json()
         quote = Quote.query.get(quote_id)
         if quote:
-            quote.move_id = data['move_id']
-            quote.company_id = data['company_id']
-            quote.price = data['price']
-            quote.details = data['details']
+            quote.move_id = data.get('move_id', quote.move_id)
+            quote.price = data.get('price', quote.price)
+            quote.status = data.get('status', quote.status)
             db.session.commit()
             return quote.to_dict(), 200
         return {'error': 'Quote not found'}, 404
@@ -404,13 +418,17 @@ class BookingResource(Resource):
             return {'error': 'Booking not found'}, 404
         bookings = Booking.query.all()
         return [booking.to_dict() for booking in bookings], 200
+    
+    from datetime import datetime
 
     def post(self):
         data = request.get_json()
         new_booking = Booking(
-            move_id=data['move_id'],
             quote_id=data['quote_id'],
-            status=data['status']
+            customer_id=data['customer_id'],
+            moving_company_id=data['moving_company_id'],
+            move_id=data['move_id'],
+            date=datetime.strptime(data['date'], '%Y-%m-%d').date()
         )
         db.session.add(new_booking)
         db.session.commit()
@@ -420,9 +438,11 @@ class BookingResource(Resource):
         data = request.get_json()
         booking = Booking.query.get(booking_id)
         if booking:
-            booking.move_id = data['move_id']
-            booking.quote_id = data['quote_id']
-            booking.status = data['status']
+            booking.quote_id = data.get('quote_id', booking.quote_id)
+            booking.customer_id = data.get('customer_id', booking.customer_id)
+            booking.moving_company_id = data.get('moving_company_id', booking.moving_company_id)
+            booking.move_id = data.get('move_id', booking.move_id)
+            booking.date = datetime.strptime(data.get('date', booking.date), '%Y-%m-%d').date()
             db.session.commit()
             return booking.to_dict(), 200
         return {'error': 'Booking not found'}, 404
@@ -437,7 +457,8 @@ class BookingResource(Resource):
 
 # Notification Resource
 class NotificationResource(Resource):
-    def get(self, notification_id=None):
+    def get(self, **kwargs):
+        notification_id = kwargs.get('notification_id')
         if notification_id:
             notification = Notification.query.get(notification_id)
             if notification:
@@ -449,10 +470,9 @@ class NotificationResource(Resource):
     def post(self):
         data = request.get_json()
         new_notification = Notification(
-            user_id=data['user_id'],
+            booking_id=data['booking_id'],
             message=data['message'],
-            timestamp=datetime.strptime(data['timestamp'], '%Y-%m-%dT%H:%M:%S'),
-            read=data['read']
+            timestamp=datetime.strptime(data['timestamp'], '%Y-%m-%dT%H:%M:%S')
         )
         db.session.add(new_notification)
         db.session.commit()
@@ -462,10 +482,9 @@ class NotificationResource(Resource):
         data = request.get_json()
         notification = Notification.query.get(notification_id)
         if notification:
-            notification.user_id = data['user_id']
-            notification.message = data['message']
-            notification.timestamp = datetime.strptime(data['timestamp'], '%Y-%m-%dT%H:%M:%S')
-            notification.read = data['read']
+            notification.booking_id = data.get('booking_id', notification.booking_id)
+            notification.message = data.get('message', notification.message)
+            notification.timestamp = datetime.strptime(data.get('timestamp', notification.timestamp), '%Y-%m-%dT%H:%M:%S')
             db.session.commit()
             return notification.to_dict(), 200
         return {'error': 'Notification not found'}, 404
@@ -480,20 +499,20 @@ class NotificationResource(Resource):
 
 # Communication Resource
 class CommunicationResource(Resource):
-    def get(self, communication_id=None):
+    def get(self, **kwargs):
+        communication_id = kwargs.get('communication_id')
         if communication_id:
             communication = Communication.query.get(communication_id)
             if communication:
-                return communication.to_dict(), 200
+                return communication.to_dict(only=['id', 'booking_id', 'message', 'timestamp']), 200
             return {'error': 'Communication not found'}, 404
         communications = Communication.query.all()
-        return [communication.to_dict() for communication in communications], 200
+        return [communication.to_dict(only=['id', 'booking_id', 'message', 'timestamp']) for communication in communications], 200
 
     def post(self):
         data = request.get_json()
         new_communication = Communication(
-            user_id=data['user_id'],
-            move_id=data['move_id'],
+            booking_id=data['booking_id'],
             message=data['message'],
             timestamp=datetime.strptime(data['timestamp'], '%Y-%m-%dT%H:%M:%S')
         )
@@ -505,10 +524,9 @@ class CommunicationResource(Resource):
         data = request.get_json()
         communication = Communication.query.get(communication_id)
         if communication:
-            communication.user_id = data['user_id']
-            communication.move_id = data['move_id']
-            communication.message = data['message']
-            communication.timestamp = datetime.strptime(data['timestamp'], '%Y-%m-%dT%H:%M:%S')
+            communication.booking_id = data.get('booking_id', communication.booking_id)
+            communication.message = data.get('message', communication.message)
+            communication.timestamp = datetime.strptime(data.get('timestamp', communication.timestamp), '%Y-%m-%dT%H:%M:%S')
             db.session.commit()
             return communication.to_dict(), 200
         return {'error': 'Communication not found'}, 404
@@ -539,4 +557,8 @@ api.add_resource(InventoryResource, '/inventories', '/inventories/<int:inventory
 api.add_resource(MoveResource, '/moves', '/moves/<int:move_id>')
 api.add_resource(QuoteResource, '/quotes', '/quotes/<int:quote_id>')
 api.add_resource(BookingResource, '/bookings', '/bookings/<int:booking_id>')
-api.add_resource(NotificationResource, '/notifications', '/notifications/<int:notifications_id>')
+api.add_resource(NotificationResource, '/notifications', '/notifications/<int:notification_id>')
+api.add_resource(CommunicationResource, '/communications', '/communications/<int:communication_id>')
+api.add_resource(UserDashboardResource, '/user_dashboard')
+api.add_resource(CompanyDashboardResource, '/company_dashboard')
+

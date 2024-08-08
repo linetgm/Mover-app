@@ -1,6 +1,15 @@
+import random
 from datetime import datetime, date
 from config import db, app
 from models import User, Profile, Checklist, Inventory, Move, MovingCompany, Quote, Booking, Notification, Communication
+
+# Define a list of possible home types
+HOME_TYPES = [
+    'Bedsitter',
+    'One Bedroom',
+    'Studio',
+    'Two Bedroom'
+]
 
 def seed_data():
     with app.app_context():
@@ -35,9 +44,9 @@ def seed_data():
         db.session.add(profile2)
         db.session.commit()
 
-        # Create checklists for users
-        checklist1 = Checklist(user_id=user1.id, home_type='Apartment')
-        checklist2 = Checklist(user_id=user2.id, home_type='House')
+        # Create checklists for users with random home type
+        checklist1 = Checklist(user_id=user1.id, home_type=random.choice(HOME_TYPES))
+        checklist2 = Checklist(user_id=user2.id, home_type=random.choice(HOME_TYPES))
 
         # Add checklists to the session
         db.session.add(checklist1)
