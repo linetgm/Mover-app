@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, unset_jwt_cookies
 from .models import db, User
 
-bp = Blueprint('auth', _name_)
+bp = Blueprint('auth', __name__)
 
 @bp.route('/signup', methods=['POST'])
 def signup():

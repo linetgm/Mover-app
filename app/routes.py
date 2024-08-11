@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from .models import db, User, Inventory, Move, Mover, Message
 from datetime import datetime
 
-bp = Blueprint('routes', _name_)
+bp = Blueprint('routes', __name__)
 
 @bp.route('/home_types', methods=['GET'])
 def get_home_types():

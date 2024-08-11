@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .models import db, User
 
-bp = Blueprint('admin', _name_)
+bp = Blueprint('admin', __name__)
 
 @bp.route('/approve_mover/<int:mover_id>', methods=['POST'])
 @jwt_required()
