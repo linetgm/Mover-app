@@ -23,7 +23,7 @@ def login():
     
     if user and check_password_hash(user.password_hash, data['password']):
         access_token = create_access_token(identity=user.id)
-        return jsonify(access_token=access_token), 200
+        return jsonify(access_token=access_token , role=user.role), 200
     
     return jsonify({"msg": "Bad email or password"}), 401
 
