@@ -1,22 +1,18 @@
 import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
-import './Navbar.css';
+import { Navbar, Nav, Button } from 'react-bootstrap';
 
-
-const Navbar = () => {
+const NavbarComponent = () => {
   const { user, setUser } = useContext(UserContext);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
-      // Call the backend logout endpoint
       const response = await fetch('http://127.0.0.1:5555/logout', { method: 'DELETE' });
 
       if (response.ok) {
-        // Clear the user context on successful logout
         setUser({ id: null, username: '', email: '', role: '' });
-        // Navigate back to the home page or any desired page
         navigate('/');
       } else {
         console.error('Failed to log out');
@@ -27,31 +23,33 @@ const Navbar = () => {
   };
 
   return (
-    <nav>
-      <Link to="/">Home</Link>
-
-      {/* Conditional Rendering Based on User Role */}
-      {user.id ? (
-        <>
-          <Link to="/admin/dashboard">AdminDashboard</Link>
-
-          {user.role === 'user' && <Link to="/inventory">Inventory</Link>}
-          {(user.role === 'user' || user.role === 'mover') && (
+    <Navbar bg="dark" variant="dark" expand="lg" sticky="top">
+      <Navbar.Brand as={Link} to="/">Home</Navbar.Brand>
+      <Navbar.Toggle aria-controls="basic-navbar-nav" />
+      <Navbar.Collapse id="basic-navbar-nav">
+        <Nav className="mr-auto">
+          {user.id ? (
             <>
-              <Link to="/quotes">Quotes</Link>
-              <Link to="/moves">Moves</Link>
+              <Nav.Link as={Link} to="/admin/dashboard">Admin Dashboard</Nav.Link>
+              {user.role === 'user' && <Nav.Link as={Link} to="/inventory">Inventory</Nav.Link>}
+              {(user.role === 'user' || user.role === 'mover') && (
+                <>
+                  <Nav.Link as={Link} to="/quotes">Quotes</Nav.Link>
+                  <Nav.Link as={Link} to="/moves">Moves</Nav.Link>
+                </>
+              )}
+              <Button variant="danger" onClick={handleLogout}>Logout</Button>
+            </>
+          ) : (
+            <>
+              <Nav.Link as={Link} to="/login">Login</Nav.Link>
+              <Nav.Link as={Link} to="/register">Register</Nav.Link>
             </>
           )}
-          <button onClick={handleLogout}>Logout</button>
-        </>
-      ) : (
-        <>
-          <Link to="/login">Login</Link>
-          <Link to="/register">Register</Link>
-        </>
-      )}
-    </nav>
+        </Nav>
+      </Navbar.Collapse>
+    </Navbar>
   );
 };
 
-export default Navbar;
+export default NavbarComponent;
