@@ -1,0 +1,10 @@
+/* styles.css */
+
+/* Set a transparent image background for the entire app */
+body {
+    background: url('/frontendmovers/movers-app-frontend/src/images/image.png') no-repeat center center fixed;
+    background-size: cover; /* Cover the entire page */
+    margin: 0;
+    font-family: 'Poppins', sans-serif; /* Ensure you have Poppins font */
+  }
+  

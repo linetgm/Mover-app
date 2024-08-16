@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Profile = () => {
     const [form, setForm] = useState({
@@ -48,124 +48,85 @@ const Profile = () => {
     };
 
     return (
-        <div style={styles.outerContainer}>
-            <div style={styles.container}>
-                <h2>Create Profile</h2>
-                {error && <p style={styles.error}>{error}</p>}
-                <form style={styles.form} onSubmit={handleSubmit}>
-                    <label>
-                        User id:
+        <div className="d-flex justify-content-center align-items-center vh-100 bg-light">
+            <div className="card p-4 shadow-lg" style={{ maxWidth: '600px', width: '100%' }}>
+                <h2 className="text-center mb-4">Create Profile</h2>
+                {error && <p className="text-danger">{error}</p>}
+                <form onSubmit={handleSubmit}>
+                    <div className="mb-3">
+                        <label htmlFor="user_id" className="form-label">User ID:</label>
                         <input
                             type="text"
+                            id="user_id"
                             name="user_id"
                             value={form.user_id}
                             onChange={handleChange}
-                            placeholder="user id"
+                            placeholder="User ID"
                             required
-                            style={styles.input}
+                            className="form-control"
                         />
-                    </label>
-                    <label>
-                        First Name:
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="first_name" className="form-label">First Name:</label>
                         <input
                             type="text"
+                            id="first_name"
                             name="first_name"
                             value={form.first_name}
                             onChange={handleChange}
                             placeholder="First Name"
                             required
-                            style={styles.input}
+                            className="form-control"
                         />
-                    </label>
-                    <label>
-                        Last Name:
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="last_name" className="form-label">Last Name:</label>
                         <input
                             type="text"
+                            id="last_name"
                             name="last_name"
                             value={form.last_name}
                             onChange={handleChange}
                             placeholder="Last Name"
                             required
-                            style={styles.input}
+                            className="form-control"
                         />
-                    </label>
-                    <label>
-                        Phone Number:
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="phone_number" className="form-label">Phone Number:</label>
                         <input
                             type="text"
+                            id="phone_number"
                             name="phone_number"
                             value={form.phone_number}
                             onChange={handleChange}
                             placeholder="Phone Number"
                             required
-                            style={styles.input}
+                            className="form-control"
                         />
-                    </label>
-                    <label>
-                        Preferences:
+                    </div>
+                    <div className="mb-4">
+                        <label htmlFor="preferences" className="form-label">Preferences:</label>
                         <input
                             type="text"
+                            id="preferences"
                             name="preferences"
                             value={form.preferences}
                             onChange={handleChange}
                             placeholder="Preferences"
-                            style={styles.input}
+                            className="form-control"
                         />
-                    </label>
-                    <button type="submit" disabled={isSubmitting} style={styles.button}>
+                    </div>
+                    <button 
+                        type="submit" 
+                        className={`btn btn-primary w-100 ${isSubmitting ? 'disabled' : ''}`}
+                    >
                         {isSubmitting ? 'Submitting...' : 'Submit'}
                     </button>
                 </form>
             </div>
         </div>
     );
-};
-
-// Inline styles
-const styles = {
-    outerContainer: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        backgroundColor: '#f0f0f0', // Background color of the page
-        margin: 0,
-    },
-    container: {
-        maxWidth: '600px',
-        width: '100%',
-        padding: '20px',
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        backgroundColor: '#ff6600', // Background color of the form container
-        boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
-    },
-    form: {
-        display: 'flex',
-        flexDirection: 'column',
-    },
-    input: {
-        padding: '8px',
-        marginTop: '5px',
-        border: '1px solid #ddd',
-        borderRadius: '4px',
-    },
-    button: {
-        marginTop: '10px',
-        padding: '10px',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: 'pointer',
-        backgroundColor: '#ff6600',
-        color: '#fff',
-    },
-    buttonDisabled: {
-        backgroundColor: '#ccc',
-        cursor: 'not-allowed',
-    },
-    error: {
-        color: 'red',
-    }
 };
 
 export default Profile;

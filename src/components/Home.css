@@ -5,6 +5,7 @@
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  padding-bottom: 100px; /* Add padding to ensure content isn't hidden by fixed elements */
 }
 
 /* Hero Section */
@@ -14,28 +15,36 @@
   color: white;
   margin-bottom: 40px;
   overflow: hidden;
+  height: 100vh; /* Ensure the section takes up full viewport height */
 }
 
 .hero-image {
   width: 100%;
-  height: auto;
-  filter: brightness(70%);
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  filter: brightness(50%);
 }
 
 .hero-text {
   position: absolute;
-  top: 50%;
+  bottom: 0;
   left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  background: rgba(0, 0, 0, 0.6);
+  transform: translateX(-50%);
   padding: 20px;
+  background: rgba(0, 0, 0, 0.5);
   border-radius: 8px;
   color: #f9f9f9;
+  display: inline-block;
+  max-width: 90%;
+  text-align: center;
 }
 
 .hero-text h1 {
-  font-size: 2.5rem;
+  font-size: 3rem;
   font-weight: 700;
   margin-bottom: 10px;
 }
@@ -43,6 +52,17 @@
 .hero-text p {
   font-size: 1.2rem;
   margin: 0;
+}
+
+.cta-button {
+  background-color: #3498db; /* Example color */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
 }
 
 /* Features Section */
@@ -103,17 +123,20 @@
 
 .testimonials {
   display: flex;
-  justify-content: space-around;
+  justify-content: center; /* Center testimonials horizontally */
   flex-wrap: wrap;
+  gap: 20px; /* Space between testimonials */
+  overflow-x: auto; /* Allow horizontal scrolling */
+  padding: 10px; /* Add padding around testimonials */
 }
 
 .testimonial {
-  max-width: 300px;
-  margin: 20px;
+  min-width: 300px; /* Ensure minimum width for better visibility */
   padding: 20px;
   background-color: #f4f4f9;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .testimonial p {
@@ -127,6 +150,33 @@
   color: #333;
 }
 
+/* Call to Action Section */
+.cta-section {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.cta-section h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.cta-section p {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+}
+
+.cta-button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .features, .testimonials {
@@ -135,10 +185,10 @@
   }
 
   .hero-text h1 {
-    font-size: 2rem;
+    font-size: 2.5rem;
   }
 
   .hero-text p {
-    font-size: 1rem;
+    font-size: 1.2rem;
   }
 }

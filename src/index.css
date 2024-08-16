@@ -1,16 +1,21 @@
-/* App.css */
-body {
+/* index.css */
+
+/* Ensure html and body take full height and have no margin */
+html, body {
+  height: 100%;
   margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f0f0; /* Light gray background */
-  background-size: cover; /* Cover the entire background */
-  background-position: center; /* Center the background image */
-  background-attachment: fixed; /* Keep the background image fixed */
+  overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
+/* Main container to take full viewport height */
 #root {
-  min-height: 100vh;
+  height: 100vh; /* Full viewport height */
   display: flex;
   flex-direction: column;
+}
+
+/* Background image for the entire app */
+body {
+  background: url('./images/image.png') no-repeat center center fixed;
+  background-size: cover; /* Cover the entire viewport */
 }

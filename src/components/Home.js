@@ -1,26 +1,19 @@
 import React from 'react';
-import './Home.css';
-
-// Import your images
+import './Home.css'; // Ensure this path is correct
 import image3 from '../images/image3.png';
 
 const Home = () => {
-  // Slider settings
-  
-
   return (
     <div className="home-container">
-      
-
       {/* Hero Section */}
       <div className="hero-section">
         <img src={image3} alt="View of our services" className="hero-image" />
         <div className="hero-text">
-          <h1>Welcome to Movers Solution Company</h1>
+          <h1>MOVERS SOLUTION COMPANY</h1>
+          
           <p>Your reliable partner for a stress-free moving experience.</p>
         </div>
       </div>
-
 
       {/* Features Section */}
       <div className="features-section">
@@ -55,9 +48,6 @@ const Home = () => {
           </div>
         </div>
       </div>
-      
-
-      
     </div>
   );
 }

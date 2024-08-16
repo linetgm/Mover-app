@@ -1,56 +1,40 @@
-.login-container {
-  max-width: 400px; /* Reduced max-width */
-  margin: 30px auto; /* Reduced margin */
-  padding: 15px; /* Reduced padding */
-  background-color: white;
-  border-radius: 8px; /* Slightly less rounded corners */
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1); /* Reduced shadow size */
-  border: 1px solid #ccc;
+/* src/components/Login.css */
+.login-form {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-h2 {
+.login-form h2 {
   text-align: center;
-  margin-bottom: 15px; /* Reduced margin */
-  color: #ff9900;
-  font-size: 1.5em;
+  margin-bottom: 20px;
+  color: #007bff;
 }
 
-.login-form .form-group {
-  margin-bottom: 1rem;
-  margin-top: 4px;
-}
-
-.login-form label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: bold;
-}
-
-.login-form input {
+.login-input {
   width: 100%;
-  padding: 0.5rem;
+  padding: 10px;
+  margin-bottom: 15px;
   border-radius: 4px;
   border: 1px solid #ccc;
   box-sizing: border-box;
 }
 
-.error-message {
-  color: red;
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
-}
-
 .login-button {
-  width: 100%;
-  padding: 0.75rem;
-  background-color: #ff9900;
-  color: white;
+  width: max-content;
+  padding: 0%;
+  background-color: #007bff;
+  color: #fff;
   border: none;
   border-radius: 4px;
+  font-size: 16px;
   cursor: pointer;
-  font-size: 1rem;
+  transition: background-color 0.3s ease;
 }
 
-.login-button:disabled {
-  background-color: #ccc;
+.login-button:hover {
+  background-color: #0056b3;
 }

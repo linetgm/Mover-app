@@ -1,69 +1,40 @@
-/* AdminDashboard.css */
+/* src/components/AuthTabs.css */
+.auth-tabs-container {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
 
-.dashboard-container {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-  }
-  
-  h1 {
-    color: #ff6600;
-  }
-  
-  .list-section {
-    margin-bottom: 20px;
-  }
-  
-  h2 {
-    color: #555;
-    border-bottom: 2px solid #ccc;
-    padding-bottom: 5px;
-  }
-  
-  .list {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  .list-item {
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    padding: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .button-group {
-    display: flex;
-    gap: 5px;
-  }
-  
-  .action-button {
-    background-color: #007bff;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
-    padding: 5px 10px;
-  }
-  
-  .action-button:hover {
-    background-color: #0056b3;
-  }
-  
-  .logout-button {
-    background-color: #ff6600;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
-    padding: 10px 20px;
-    font-size: 16px;
-  }
-  
-  .logout-button:hover {
-    background-color: #c82333;
-  }
-  
+.tabs {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+.tabs button {
+  padding: 10px 20px;
+  border: none;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.tabs button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.tabs button:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+.tab-content {
+  padding: 20px;
+}
